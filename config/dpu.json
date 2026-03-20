@@ -1,0 +1,41 @@
+{
+  "databases": [
+    {
+      "name": "dpu-dev",
+      "type": "mysql",
+      "host": "aurora-dpu-dev.cluster-cxm4ce0i8nzq.ap-east-1.rds.amazonaws.com",
+      "port": 3306,
+      "database": "dpu_seller_center",
+      "username": "dpu_dev",
+      "password": "${DPU_DEV_PASSWORD}",
+      "permissions": {
+        "level": "readwrite"
+      }
+    },
+    {
+      "name": "dpu-sit",
+      "type": "mysql",
+      "host": "aurora-dpu-sit-instance-1.cxm4ce0i8nzq.ap-east-1.rds.amazonaws.com",
+      "port": 3306,
+      "database": "dpu_seller_center",
+      "username": "dpu_sit",
+      "password": "${DPU_SIT_PASSWORD}",
+      "permissions": {
+        "level": "readwrite"
+      }
+    },
+    {
+      "name": "dpu-uat",
+      "type": "mysql",
+      "host": "aurora-dpu-uat.cluster-cv2aqqmyo5k9.ap-east-1.rds.amazonaws.com",
+      "port": 3306,
+      "database": "dpu_seller_center",
+      "username": "dpu_uat",
+      "password": "${DPU_UAT_PASSWORD}",
+      "permissions": {
+        "level": "readonly",
+        "forbiddenOperations": ["DELETE", "DDL"]
+      }
+    }
+  ]
+}

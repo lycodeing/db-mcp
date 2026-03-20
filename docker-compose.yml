@@ -1,0 +1,57 @@
+services:
+  db-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: db-mcp:latest
+    container_name: db-mcp
+    restart: unless-stopped
+    volumes:
+      # 配置文件挂载
+      - ./config:/app/config:ro
+      # SSH 密钥挂载（可选）
+      - ~/.ssh:/root/.ssh:ro
+    environment:
+      # 日志级别
+      - LOG_LEVEL=info
+      # 数据库密码（通过环境变量传递）
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-}
+      # SSH 私钥路径（容器内路径）
+      - SSH_PRIVATE_KEY_PATH=/root/.ssh/id_rsa
+    # MCP 通过 stdio 通信，保持容器运行
+    stdin_open: true
+    tty: true
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "node", "-e", "console.log('healthy')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # 可选：用于远程 MCP 连接的 SSE 服务
+  db-mcp-sse:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: db-mcp:latest
+    container_name: db-mcp-sse
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./config:/app/config:ro
+      - ~/.ssh:/root/.ssh:ro
+    environment:
+      - LOG_LEVEL=info
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-}
+      - SSH_PRIVATE_KEY_PATH=/root/.ssh/id_rsa
+      - MCP_TRANSPORT=sse
+      - MCP_PORT=3000
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

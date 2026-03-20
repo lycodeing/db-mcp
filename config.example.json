@@ -1,0 +1,45 @@
+{
+  "databases": [
+    {
+      "name": "my-mysql-dev",
+      "type": "mysql",
+      "host": "dev.example.com",
+      "port": 3306,
+      "database": "dev_db",
+      "username": "dev_user",
+      "password": "${MYSQL_PASSWORD}",
+      "ssh": {
+        "host": "dev.example.com",
+        "port": 22,
+        "username": "ssh_user",
+        "privateKey": "${SSH_PRIVATE_KEY_PATH}"
+      },
+      "permissions": {
+        "level": "readwrite"
+      }
+    },
+    {
+      "name": "my-postgres-prod",
+      "type": "postgresql",
+      "host": "prod.example.com",
+      "port": 5432,
+      "database": "prod_db",
+      "username": "prod_user",
+      "password": "${POSTGRES_PASSWORD}",
+      "ssh": {
+        "host": "prod.example.com",
+        "port": 22,
+        "username": "ssh_user",
+        "privateKey": "~/.ssh/id_rsa"
+      },
+      "permissions": {
+        "level": "readonly",
+        "tableOverrides": {
+          "sensitive_data": "readonly",
+          "audit_logs": "readonly"
+        },
+        "forbiddenOperations": ["DELETE", "DDL"]
+      }
+    }
+  ]
+}

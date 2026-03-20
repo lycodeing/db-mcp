@@ -63,7 +63,13 @@ export class MySqlAdapter extends BaseDatabaseAdapter {
       conn.release();
       logger.info(`MySQL 连接 [${this.config.name}] 建立成功`);
     } catch (error) {
-      logger.error(`MySQL 连接 [${this.config.name}] 测试失败:`, error);
+      const err = error as Error;
+      logger.error(`MySQL 连接 [${this.config.name}] 测试失败: ${err.message}`, {
+        host: this.config.host,
+        port: this.config.port,
+        database: this.config.database,
+        code: (err as any).code
+      });
       throw error;
     }
   }

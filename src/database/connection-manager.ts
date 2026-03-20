@@ -158,7 +158,7 @@ export class ConnectionManager {
     logger.debug(`开始创建连接 [${config.name}]...`);
 
     // 1. 创建 SSH 隧道（如果配置了 SSH）
-    let tunnel: Client | null = null;
+    let tunnel: SshClient | null = null;
     let localPort = config.port;
 
     if (config.ssh) {
@@ -200,7 +200,7 @@ export class ConnectionManager {
     dbPort: number
   ): Promise<{ tunnel: SshClient; localPort: number }> {
     return new Promise((resolve, reject) => {
-      const client = new Client();
+      const client = new ssh2.Client();
 
       client.on('ready', () => {
         logger.debug(`SSH 连接 [${sshConfig.host}:${sshConfig.port}] 嚄立成功`);
@@ -214,7 +214,7 @@ export class ConnectionManager {
           0,             // 本地端口（0 表示随机分配）
           '127.0.0.1',  // 远程地址（相对于 SSH 服务器)
           dbPort,        // 远程端口
-          (err, stream) => {
+          (err: Error | undefined, stream: unknown) => {
             if (err) {
             logger.error(`端口转发失败:`, err);
             reject(new Error(`SSH 端口转发失败: ${err.message}`));
@@ -234,13 +234,13 @@ export class ConnectionManager {
           this.setupReconnect(client, sshConfig);
 
           // 关闭 stream（因为我们只是用来测试连接)
-          stream.close();
+          (stream as { close: () => void }).close();
 
           resolve({ tunnel: client, localPort: assignedLocalPort });
         });
       });
 
-      client.on('error', (err) => {
+      client.on('error', (err: Error) => {
         logger.error(`SSH 连接错误:`, err);
         reject(new Error(`SSH 连接失败: ${err.message}`));
       });
